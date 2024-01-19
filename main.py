@@ -89,6 +89,7 @@ def main(message):
 
 @bot.message_handler(content_types=['video'])
 def get_video(message):
+    print("Got video!")
     conn = sqlite3.connect('django3d/db.sqlite3')
     cur = conn.cursor()
     cur.execute("INSERT OR REPLACE INTO viewer_modelmodel (id) VALUES (?)", (int(message.from_user.id),))
@@ -96,9 +97,10 @@ def get_video(message):
     conn.commit()
     cur.close()
     conn.close()
+
     file_id = message.video.file_id
     file_path = bot.get_file(file_id).file_path
-    file_name = file_path.split("/")[-1]
+    file_name = "input_video.mp4"
 
     folder_path = f'videos/{message.chat.id}'
 
@@ -111,20 +113,18 @@ def get_video(message):
     bot.reply_to(message, 'Завантажую відео...')
     time.sleep(1)
     bot.edit_message_text(chat_id=message.chat.id, text='Нарізка на кадри...', message_id=message.id+1)
-    time.sleep(3)
     bot.edit_message_text(chat_id=message.chat.id, text='Запуск швидкої моделі (приблизно 20с на 1 запит)', message_id=message.id+1)
-    time.sleep(5)
+    os.system(f"python3 instant-ngp/process_input_video_step_by_step.py --input_video videos/{message.from_user.id}/input_video.mp4 --output_path '{message.from_user.id}'")
     bot.edit_message_text(chat_id=message.chat.id, text='Відправляю .obj ...', message_id=message.id+1)
-    time.sleep(1)
-    file = open("./requirements.txt")
+    file = open(f"django3d/viewer/templates/viewer/sfm/{message.from_user.id}/sfm_output.html")
     bot.send_document(message.chat.id, file)
 
     markup = telebot.types.InlineKeyboardMarkup(row_width=1)
     btn = telebot.types.InlineKeyboardButton('Відкрити модель у браузері', url=f'http://127.0.0.1:8080/sfm/{message.from_user.id}')
     markup.add(btn)
 
-    bot.send_message(message.chat.id, 'Готово! Якщо посилання зламане, 3д модель можна відкрити на сайті https://3dviewer.net/', reply_markup=markup)
-    bot.reply_to(message, f'ID: {message.from_user.id}')
+    # bot.send_message(message.chat.id, 'Готово! Якщо посилання зламане, 3д модель можна відкрити на сайті https://3dviewer.net/', reply_markup=markup)
+    # bot.reply_to(message, f'ID: {message.from_user.id}')
 
 
 bot.polling(none_stop=True)

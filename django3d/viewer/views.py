@@ -23,7 +23,7 @@ class LiteModelView(DetailView):
 
     def get_template_names(self):
         pk = self.kwargs['pk']
-        template_name = f"viewer/sfm/{pk}.html"
+        template_name = f"viewer/sfm/{pk}/sfm_output.html"
         return [template_name]
 
     def get_context_data(self, **kwargs):
