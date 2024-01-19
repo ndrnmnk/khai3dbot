@@ -1,0 +1,25 @@
+<!doctype html>
+<head>
+    <title>3d test</title>
+</head>
+<body>
+    <script type="text/javascript" src="/static/js/o3dv.min.js"></script>
+    <script>
+        window.addEventListener ('load', () => {
+
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const modelPath = urlParams.get('model')
+        console.log(modelPath);
+        // tell the engine where to find the libs folder
+        OV.SetExternalLibLocation ('libs');
+        // init all viewers on the page
+        OV.Init3DViewerElements ();
+    });
+    </script>
+    <div class="online_3d_viewer"
+    style="width: 1600px; height: 1200px;"
+    model="{{ model_path }}">
+</div>
+</body>
+</html>
