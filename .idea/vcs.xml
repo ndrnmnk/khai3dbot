@@ -2,7 +2,26 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/colmap" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/instant-ngp" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/instant-ngp/Hierarchical-Localization" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/instant-ngp/Hierarchical-Localization/third_party/SuperGluePretrainedNetwork" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/instant-ngp/Hierarchical-Localization/third_party/d2net" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/instant-ngp/Hierarchical-Localization/third_party/deep-image-retrieval" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/instant-ngp/Hierarchical-Localization/third_party/r2d2" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/instant-ngp/dependencies/OpenXR-SDK" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/instant-ngp/dependencies/args" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/instant-ngp/dependencies/dlss" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/instant-ngp/dependencies/dlss/NVIDIAImageScaling" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/instant-ngp/dependencies/glfw" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/instant-ngp/dependencies/imgui" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/instant-ngp/dependencies/pybind11" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/instant-ngp/dependencies/tiny-cuda-nn" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/instant-ngp/dependencies/tiny-cuda-nn/dependencies/cutlass" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/instant-ngp/dependencies/tiny-cuda-nn/dependencies/fmt" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/instant-ngp/dependencies/tinylogger" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/instant-ngp/dependencies/zlib" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/instant-ngp/dependencies/zstr" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/nvitop" vcs="Git" />
   </component>
 </project>

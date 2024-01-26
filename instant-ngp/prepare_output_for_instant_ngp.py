@@ -73,7 +73,7 @@ def main():
 	# matcher_conf = match_features.confs['superglue-fast']
 
 	feature_conf = extract_features.confs['superpoint_aachen']
-	matcher_conf = match_features.confs['NN-mutual']
+	matcher_conf = match_features.confs['NN-ratio']
 
 
 	# feature_conf = extract_features.confs['superpoint_aachen']

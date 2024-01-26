@@ -44,7 +44,7 @@ def main():
 	project_root_dir = os.getcwd()
 	os.chdir(input_dir)
 
-	device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+	device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 	duration = float(os.popen(f'ffprobe -i {input_video_name} -show_entries format=duration -v quiet -of csv="p=0"').read())
@@ -53,27 +53,29 @@ def main():
 
 	if device == 'cuda':
 		if args.fps != -1:
-			do_system(f"python3 ../scripts/colmap2nerf.py --video_in {input_video_name} --video_fps {args.fps} --run_colmap --colmap_camera_model 'SIMPLE_PINHOLE' --colmap_matcher exhaustive --aabb_scale 16 --overwrite")
+			do_system(f"python3 ../../instant-ngp/scripts/colmap2nerf.py --aabb_scale 4 --video_in {input_video_name} --video_fps {args.fps} --run_colmap --colmap_camera_model 'SIMPLE_PINHOLE' --colmap_matcher exhaustive --aabb_scale 16 --overwrite")
 		else:
-			new_fps = 20 / duration
+			new_fps = 40 / duration
+			print("device cuda")
 			print(f"{new_fps = }")
-			do_system(f"python3 ../scripts/colmap2nerf.py --video_in {input_video_name} --video_fps {new_fps} --run_colmap --colmap_camera_model 'SIMPLE_PINHOLE' --colmap_matcher exhaustive --aabb_scale 16 --overwrite")
+			do_system(f"python3 ../../instant-ngp/scripts/colmap2nerf.py --aabb_scale 4 --video_in {input_video_name} --video_fps {new_fps} --run_colmap --colmap_camera_model 'SIMPLE_PINHOLE' --colmap_matcher exhaustive --aabb_scale 16 --overwrite")
 
 		os.chdir(project_root_dir)
 
-		do_system(f"python3 get_visualization_html.py --input_dir {input_dir}")
+		do_system(f"python3 instant-ngp/get_visualization_html.py --input_dir {input_dir}")
 		# as a result {args.input_dir}/sfm_output.html is ready
 		try:
-			do_system(f"python3 get_smooth_camera_path.py --input_dir {input_dir}")
+			do_system(f"python3 instant-ngp/get_smooth_camera_path.py --input_dir {input_dir}")
 		except:
-			do_system(f"cp data/nerf/fox/base_cam.json {os.path.join(input_dir, 'base_cam.json/')}")
+			do_system(f"cp instant-ngp/data/nerf/fox/base_cam.json {os.path.join(input_dir, 'base_cam.json/')}")
 		# as a result videos_as_input/base_cam.json is ready
 
 		do_system(
-			f"python3 scripts/run.py --scene {input_dir} --n_steps {args.stop_after} "
-			# f"--video_camera_path  {os.path.join(input_dir, 'base_cam.json')} "
-			# f"--video_fps 2 --video_n_seconds 10 --video_spp 1 "
-			# f"--video_output {os.path.join(input_dir, 'video.mp4')}  --width 1280 --height 720 "
+			f"python3 instant-ngp/scripts/run.py --scene {input_dir} --n_steps {args.stop_after} "
+			# f"--load_snapshot instant-ngp/base.ingp "
+			f"--video_camera_path  {os.path.join(input_dir, 'base_cam.json')} "
+			f"--video_fps 2 --video_n_seconds 10 --video_spp 1 "
+			f"--video_output {os.path.join(input_dir, 'video.mp4')}  --width 1280 --height 720 "
 			f"--save_mesh {os.path.join(input_dir, 'model.obj')} "
 			f"--save_snapshot {os.path.join(input_dir, 'base.ingp')}")
 
@@ -84,6 +86,7 @@ def main():
 		else:
 			new_fps = 40 / duration
 			print(f"{new_fps = }")
+			print("device cpu")
 			args_for_ffmpeg = Namespace(video_in=input_video_name, video_fps=new_fps, overwrite=True, images="images", time_slice="")
 			run_ffmpeg(args_for_ffmpeg)
 
