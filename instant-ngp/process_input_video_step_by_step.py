@@ -46,7 +46,6 @@ def main():
 
 	device = "cuda" if torch.cuda.is_available() else "cpu"
 
-
 	duration = float(os.popen(f'ffprobe -i {input_video_name} -show_entries format=duration -v quiet -of csv="p=0"').read())
 	# num_of_frames = int(os.popen(f'mediainfo --Output="Video;%FrameCount%" {input_video_name}').read())
 	print(f"video duration = {duration}")
