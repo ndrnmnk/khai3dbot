@@ -55,14 +55,14 @@ def main():
 		if args.fps != -1:
 			do_system(f"python3 ../../instant-ngp/scripts/colmap2nerf.py --aabb_scale 4 --video_in {input_video_name} --video_fps {args.fps} --run_colmap --colmap_camera_model 'SIMPLE_PINHOLE' --colmap_matcher exhaustive --aabb_scale 16 --overwrite")
 		else:
-			new_fps = 40 / duration
+			new_fps = 10 / duration
 			print("device cuda")
 			print(f"{new_fps = }")
 			do_system(f"python3 ../../instant-ngp/scripts/colmap2nerf.py --aabb_scale 4 --video_in {input_video_name} --video_fps {new_fps} --run_colmap --colmap_camera_model 'SIMPLE_PINHOLE' --colmap_matcher exhaustive --aabb_scale 16 --overwrite")
 
 		os.chdir(project_root_dir)
 
-		do_system(f"python3 instant-ngp/get_visualization_html.py --input_dir {input_dir}")
+		do_system(f"python3 instant-ngp/get_visualization_html.py --input_dir {input_dir} --output_dir django3d/viewer/templates/viewer/sfm/{args.output_path}/")
 		# as a result {args.input_dir}/sfm_output.html is ready
 		try:
 			do_system(f"python3 instant-ngp/get_smooth_camera_path.py --input_dir {input_dir}")

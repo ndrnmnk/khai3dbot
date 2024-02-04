@@ -38,7 +38,6 @@ async def process_video(user_id):
         await bot.send_message(user_id, text="Готово!", reply_markup=markup)
 
 
-
 async def video_processing_handler():
     while True:
         user_id = await video_queue.get()
