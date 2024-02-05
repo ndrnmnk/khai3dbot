@@ -84,8 +84,8 @@ def main():
 
 	# feature_conf = extract_features.confs['sift']
 	# feature_conf = extract_features.confs['rootsift']
-	matcher_conf = match_features.confs['NN-mutual-dist_0.7']
-	# matcher_conf = match_features.confs['NN-mutual']
+	# matcher_conf = match_features.confs['NN-mutual-dist_0.7']
+	matcher_conf = match_features.confs['NN-mutual']
 
 	# feature_conf = extract_features.confs['superpoint_aachen']
 	# matcher_conf = match_features.confs['NN-mutual-dist_0.7']

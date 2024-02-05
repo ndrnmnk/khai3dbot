@@ -24,6 +24,7 @@ class RegistrationStates(StatesGroup):
     FULL_NAME = State()
 
 
+
 async def process_video(user_id):
     async with max_inpg_running:
         command = ["python3", "instant-ngp/process_input_video_step_by_step.py", "--input_video", f"videos/{user_id}/input_video.mp4", "--output_path", f"{user_id}"]
@@ -31,7 +32,7 @@ async def process_video(user_id):
         await process.communicate()
         result_file_path = f"django3d/viewer/templates/viewer/sfm/{user_id}/sfm_output.html"                                # Відправляємо результат роботи користувачу
         await bot.send_document(user_id, types.InputFile(result_file_path))
-        await db.rm_dir(user_id)
+        await db.rm_dir(user_id, 0)
         markup = types.InlineKeyboardMarkup(row_width=1)
         btn = types.InlineKeyboardButton('Відкрити модель у браузері', url=f'http://{ip}:8080/sfm/{user_id}')
         markup.add(btn)
@@ -72,11 +73,16 @@ async def unreg_cmd(message: types.Message):
     await db.unregister(message.from_user.id)
     await message.answer("Усі дані про Вас очищено, а посилання на моделі зламано")
     await message.answer("Щоб продовжити користуватись ботом, зареєструйтесь знову")
+    await db.id_init(message.from_user.id, message.from_user.username)
+    await RegistrationStates.CONTACT.set()
 
 
 @dp.message_handler(lambda message: not message.contact, state=RegistrationStates.CONTACT)
 async def add_contact(message: types.Message):
-    await message.answer("Ви маєте відправити саме контакт, щоб продовжити")
+    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+    button = types.KeyboardButton("Відправити контакт", request_contact=True)
+    markup.row(button)
+    await message.answer("Ви маєте відправити саме контакт, щоб продовжити", reply_markup=markup)
 
 
 @dp.message_handler(content_types=types.ContentType.CONTACT, state=RegistrationStates.CONTACT)
@@ -99,6 +105,7 @@ async def process_full_name(message: types.Message, state: FSMContext):
 @dp.message_handler(content_types=types.ContentType.VIDEO)
 async def handle_video(message: types.Message):
     print("got video")
+    await db.rm_dir(message.from_user.id, 0)
     await db.prepare_dj_db(message.from_user.id)
     video_path = f"videos/{message.from_user.id}/input_video.mp4"
     await message.video.download(video_path)

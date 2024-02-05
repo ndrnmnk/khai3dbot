@@ -27,7 +27,7 @@ async def save_full_name(user_id, creds):
 
 
 async def unregister(user_id):
-    await rm_dir(user_id)
+    await rm_dir(user_id, 1)
     cur.execute("DELETE FROM targets WHERE id=?", (user_id, ))
     conn.commit()
     cur_dj.execute("DELETE FROM viewer_modelmodel WHERE id = ?", (user_id, ))
@@ -41,5 +41,7 @@ async def prepare_dj_db(user_id):
     conn_dj.commit()
 
 
-async def rm_dir(user_id):
+async def rm_dir(user_id, rm_completely):
     shutil.rmtree(f'videos/{user_id}')
+    if rm_completely:
+        shutil.rmtree(f'django3d/viewer/templates/viewer/sfm/{user_id}')
