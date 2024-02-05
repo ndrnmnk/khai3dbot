@@ -42,6 +42,9 @@ async def prepare_dj_db(user_id):
 
 
 async def rm_dir(user_id, rm_completely):
-    shutil.rmtree(f'videos/{user_id}')
-    if rm_completely:
-        shutil.rmtree(f'django3d/viewer/templates/viewer/sfm/{user_id}')
+    try:
+        shutil.rmtree(f'videos/{user_id}')
+        if rm_completely:
+            shutil.rmtree(f'django3d/viewer/templates/viewer/sfm/{user_id}')
+    except FileNotFoundError:
+        pass
