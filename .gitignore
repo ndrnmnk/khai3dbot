@@ -3,6 +3,7 @@ temp/
 videos/
 htmls/
 splats/
+hlocalization/
 .idea
 .env
 *.pyc
