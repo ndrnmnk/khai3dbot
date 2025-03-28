@@ -1,9 +1,0 @@
-commentjson
-imageio
-numpy
-opencv-python
-pybind11
-pyquaternion
-scipy
-tqdm
-matplotlib

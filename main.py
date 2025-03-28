@@ -3,23 +3,26 @@ from aiogram.dispatcher import FSMContext
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from dotenv import load_dotenv
-from tbot import db
+from process_video import process_vid, process_splat
 import subprocess
 import requests
 import asyncio
-import boto3
-import json
 import os
+import db
 
 
-s3 = boto3.client('s3')
-lambda_client = boto3.client('lambda')
-ip = requests.get('https://checkip.amazonaws.com').text.strip()                                                         # отримання своєї ip - адреси
+max_inpg_running = asyncio.Semaphore(1)
 storage = MemoryStorage()
 load_dotenv()
 bot = Bot(os.getenv('TOKEN'))
 dp = Dispatcher(bot=bot, storage=storage)
 video_queue = asyncio.Queue()
+ip = requests.get("https://ifconfig.me").text.strip()
+
+GSPLAT_TRAINER = os.getenv('GSPLAT_TRAINER')
+GSPLAT_VENV = os.getenv('GSPLAT_VENV')
+print(GSPLAT_VENV)
+print(GSPLAT_TRAINER)
 
 
 class RegistrationStates(StatesGroup):
@@ -27,41 +30,41 @@ class RegistrationStates(StatesGroup):
     FULL_NAME = State()
 
 
-def lambda_process_video(user_id):
-    command = f"python3 instant-ngp/process_input_video_step_by_step.py --input_video videos/{user_id}/input_video.mp4 --output_path {user_id}"
-    os.system(command)
+async def process_video_sfm(user_id):
+    async with max_inpg_running:
+         process_vid(user_id)
+         result_file_path = f"htmls/{user_id}.html" # Відправляємо результат роботи користувачу
+         await bot.send_document(user_id, types.InputFile(result_file_path))
+         await db.rm_dir(user_id, 0)
+         await bot.send_message(user_id, text="50% готово! Ще через хвилину прилетить повноцінна 3Д модель")
 
 
-async def process_video(user_id):
-
-
-    lambda_client.invoke(
-        FunctionName='lambda_process_video',
-        InvocationType='Event',
-        Payload=json.dumps({'user_id': user_id})
-    )
-
-    result_file_path = f"django3d/viewer/templates/viewer/sfm/{user_id}/sfm_output.html"                                # Відправляємо результат роботи користувачу
-    await bot.send_document(user_id, types.InputFile(result_file_path))
-    await db.rm_dir(user_id, 0)
-    markup = types.InlineKeyboardMarkup(row_width=1)
-    btn = types.InlineKeyboardButton('Відкрити модель у браузері', url=f'http://{ip}:8080/sfm/{user_id}')
-
-    markup.add(btn)
-    await bot.send_message(user_id, text="Готово!", reply_markup=markup)
-    await bot.send_message(user_id, text ="Більше інформації про нас тут: https://dict.khai.edu/")
+async def process_video_splat(user_id):
+    async with max_inpg_running:
+        command = [GSPLAT_VENV, GSPLAT_TRAINER, "default", "--data-dir", os.path.abspath("temp/"), "--result-dir", os.path.abspath("temp/res")]
+        process = await asyncio.create_subprocess_exec(*command)
+        await process.communicate()
+        process_splat(user_id, ip)
+        result_ply = f"temp/res/ply/point_cloud_1000.ply"
+        result_html = f"temp/res.html" # Відправляємо результат роботи користувачу
+        await bot.send_document(user_id, types.InputFile(result_ply))
+        await bot.send_document(user_id, types.InputFile(result_html))
+        await bot.send_message(user_id, text="Ось і повноціння модель")
+        await bot.send_message(user_id, text="Примітка: html-файл відкриває лише останню модель, щоб відкрити стару, перетягни ply файл у вкладку з відкритим html файлом")
 
 
 async def video_processing_handler():
     while True:
         user_id = await video_queue.get()
-        await process_video(user_id)
+        await process_video_sfm(user_id)
+        await process_video_splat(user_id)
         video_queue.task_done()
 
 
 async def startup(_):
     print("Bot started!")
-    django_process = subprocess.Popen(["python3", "django3d/manage.py", "runserver", "0.0.0.0:8080"])                   # запуск django сайту
+    splat_server = subprocess.Popen(
+        ["python3", "splat_server.py"])  # start server hosting splat files
     asyncio.ensure_future(video_processing_handler())
 
 
@@ -119,10 +122,8 @@ async def process_full_name(message: types.Message, state: FSMContext):
 async def handle_video(message: types.Message):
     print("got video")
     await db.rm_dir(message.from_user.id, 0)
-    await db.prepare_dj_db(message.from_user.id)
     video_path = f"videos/{message.from_user.id}/input_video.mp4"
     await message.video.download(video_path)
-    s3.download_file('khai-3d-bot-bucket', video_path, video_path)
     await message.reply("Твоє відео додане в чергу. Не відправляй нових відео поки воно у черзі, бо це перезапише старе відео. Реконструкція займає не менше 2 хвилин. Тому доведеться трохи зачекати :)")
     await video_queue.put(message.from_user.id)
 

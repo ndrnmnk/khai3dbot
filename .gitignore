@@ -1,7 +1,10 @@
 __pycache__
+temp/
+videos/
+htmls/
+splats/
+.idea
+.env
 *.pyc
 *.pyo
 *.pyd
-.idea
-.env
-nvitop
